@@ -1,0 +1,35 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install CMake
+        run: sudo apt-get update && sudo apt-get install -y cmake zip
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Package binary
+        run: |
+          mkdir release
+          cp build/my_app release/
+          cd release
+          zip my_app-linux.zip my_app
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release/my_app-linux.zip
