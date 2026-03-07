@@ -2,9 +2,9 @@ name: C++ CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build:
@@ -17,11 +17,14 @@ jobs:
       - name: Install CMake
         run: sudo apt-get update && sudo apt-get install -y cmake
 
-      - name: Create build directory
-        run: mkdir build
-
-      - name: Run CMake
+      - name: Configure
         run: cmake -S . -B build
 
-      - name: Build project
+      - name: Build
         run: cmake --build build
+
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: my_app
+          path: build/my_app
