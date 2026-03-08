@@ -19,18 +19,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install CMake (Linux)
+      - name: Install (Linux)
         if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y cmake zip
+        run: sudo apt-get update && sudo apt-get install -y cmake zip tree
 
-      - name: Install CMake (Windows)
+      - name: Install (Windows)
         if: runner.os == 'Windows'
         run: choco install cmake -y
 
+      - name: Short SHA
+        shell: bash
+        run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      - name: Show project tree
+        run: tree -L 3
+
       - name: Configure
+        shell: bash
         run: |
             cmake -S . -B build \
-            -DAPP_VERSION=${{ github.ref_name }} \
+            -DAPP_VERSION=${{ github.ref_name }}-${{ env.SHORT_SHA }} \
             -DGIT_HASH=${{ github.sha }} \
             -DBUILD_OS=${{ runner.os }} \
             -DCMAKE_BUILD_TYPE=Release
@@ -49,6 +57,13 @@ jobs:
         run: |
             copy build\Release\my_app.exe my_app-${{ github.ref_name }}-windows.exe
             powershell Compress-Archive my_app-${{ github.ref_name }}-windows.exe my_app-${{ github.ref_name }}-windows.zip
+
+      - name: Debug files
+        run: |
+            pwd
+        
+      - name: Show project tree
+        run: tree -L 3
 
       - name: Upload binary
         uses: actions/upload-artifact@v4
