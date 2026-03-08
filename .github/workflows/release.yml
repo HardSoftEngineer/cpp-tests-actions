@@ -37,17 +37,14 @@ jobs:
       - name: Package Linux binary
         if: runner.os == 'Linux'
         run: |
-          mkdir release
-          cp build/my_app release/
-          cd release
-          zip my_app-${{ github.ref_name }}-linux.zip my_app
-
+            cp build/my_app .
+            zip my_app-${{ github.ref_name }}-linux.zip my_app
+            
       - name: Package Windows binary
         if: runner.os == 'Windows'
         run: |
-          mkdir release
-          copy build\Release\my_app.exe release\
-          powershell Compress-Archive release\my_app.exe my_app-${{ github.ref_name }}-windows.zip
+            copy build\Release\my_app.exe .
+            powershell Compress-Archive my_app.exe my_app-${{ github.ref_name }}-windows.zip
 
       - name: Upload Release
         uses: softprops/action-gh-release@v2
