@@ -38,7 +38,7 @@ jobs:
         shell: bash
         run: |
             cmake -S . -B build \
-            -DAPP_VERSION=${{ github.ref_name }}-${{ env.SHORT_SHA }} \
+            -DAPP_VERSION=build-${{ github.ref_name }}-${{ env.SHORT_SHA }} \
             -DGIT_HASH=${{ github.sha }} \
             -DBUILD_OS=${{ runner.os }} \
             -DCMAKE_BUILD_TYPE=Release
@@ -46,17 +46,17 @@ jobs:
       - name: Build
         run: cmake --build build --config Release
 
-      - name: Package Linux binary
+      - name: Prepare Linux binary
         if: runner.os == 'Linux'
         run: |
-            cp build/my_app my_app-${{ github.ref_name }}-linux
-            zip my_app-${{ github.ref_name }}-linux.zip my_app-${{ github.ref_name }}-linux
-            
-      - name: Package Windows binary
+            mkdir dist
+            cp build/my_app dist/my_app-${{ github.ref_name }}-linux
+
+      - name: Prepare Windows binary
         if: runner.os == 'Windows'
         run: |
-            copy build\Release\my_app.exe my_app-${{ github.ref_name }}-windows.exe
-            powershell Compress-Archive my_app-${{ github.ref_name }}-windows.exe my_app-${{ github.ref_name }}-windows.zip
+            mkdir dist
+            copy build\Release\my_app.exe dist\my_app-${{ github.ref_name }}-windows.exe
 
       - name: Debug files
         run: |
@@ -69,5 +69,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
             name: binaries-${{ runner.os }}
-            path: |
-                *.zip
+            path: dist/*
+
+      - name: Show project tree
+        run: tree -L 3
