@@ -29,7 +29,12 @@ jobs:
         run: choco install cmake -y
 
       - name: Configure
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+        run: |
+            cmake -S . -B build \
+            -DAPP_VERSION=${{ github.ref_name }} \
+            -DGIT_HASH=${{ github.sha }} \
+            -DBUILD_OS=${{ runner.os }} \
+            -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
         run: cmake --build build --config Release

@@ -18,7 +18,12 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y cmake
 
       - name: Configure
-        run: cmake -S . -B build
+        run: |
+            cmake -S . -B build \
+            -DAPP_VERSION=${{ github.ref_name }} \
+            -DGIT_HASH=${{ github.sha }} \
+            -DBUILD_OS=${{ runner.os }} \
+            -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
         run: cmake --build build
