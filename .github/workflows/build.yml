@@ -41,18 +41,18 @@ jobs:
       - name: Package Linux binary
         if: runner.os == 'Linux'
         run: |
-            cp build/my_app .
-            zip my_app-${{ github.ref_name }}-linux.zip my_app
+            cp build/my_app my_app-${{ github.ref_name }}-linux
+            zip my_app-${{ github.ref_name }}-linux.zip my_app-${{ github.ref_name }}-linux
             
       - name: Package Windows binary
         if: runner.os == 'Windows'
         run: |
-            copy build\Release\my_app.exe .
-            powershell Compress-Archive my_app.exe my_app-${{ github.ref_name }}-windows.zip
+            copy build\Release\my_app.exe my_app-${{ github.ref_name }}-windows.exe
+            powershell Compress-Archive my_app-${{ github.ref_name }}-windows.exe my_app-${{ github.ref_name }}-windows.zip
 
       - name: Upload binary
         uses: actions/upload-artifact@v4
         with:
-          files: |
-            my_app-${{ github.ref_name }}-linux.zip
-            my_app-${{ github.ref_name }}-windows.zip
+            name: binaries-${{ runner.os }}
+            path: |
+                *.zip
