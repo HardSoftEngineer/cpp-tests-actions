@@ -21,11 +21,11 @@ jobs:
 
       - name: Install (Linux)
         if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y cmake zip tree
+        run: sudo apt-get update && sudo apt-get install cmake zip tree ccache -y 
 
       - name: Install (Windows)
         if: runner.os == 'Windows'
-        run: choco install cmake -y
+        run: choco install cmake ccache -y
 
       - name: Short SHA
         shell: bash
@@ -34,10 +34,18 @@ jobs:
       - name: Show project tree
         run: tree -L 3
 
+      - name: Cache ccache
+        uses: actions/cache@v4
+        with:
+            path: ~/.ccache
+            key: ccache-${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt') }}
+
       - name: Configure
         shell: bash
         run: |
             cmake -S . -B build \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DAPP_VERSION=build-${{ github.ref_name }}-${{ env.SHORT_SHA }} \
             -DGIT_HASH=${{ github.sha }} \
             -DBUILD_OS=${{ runner.os }} \
@@ -45,6 +53,9 @@ jobs:
 
       - name: Build
         run: cmake --build build --config Release
+
+      - name: Show ccache stats
+        run: ccache -s
 
       - name: Prepare Linux binary
         if: runner.os == 'Linux'
