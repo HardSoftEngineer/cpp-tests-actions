@@ -69,6 +69,12 @@ jobs:
       - name: Show project tree
         run: tree -L 3
 
+      - name: Extract changelog
+        shell: bash
+        run: |
+          VERSION=${GITHUB_REF_NAME}
+          awk "/^## ${VERSION}/{flag=1;next}/^## v/{flag=0}flag" CHANGELOG.md > RELEASE.md
+
       - name: Upload Release
         uses: softprops/action-gh-release@v2
         with:
@@ -76,3 +82,4 @@ jobs:
           files: |
             my_app-${{ github.ref_name }}-linux.zip
             my_app-${{ github.ref_name }}-windows.zip
+          body_path: RELEASE.md
